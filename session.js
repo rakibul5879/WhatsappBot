@@ -12,6 +12,7 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
 import { exportSessionBundle } from "./lib/session.js";
+import { resolveWhatsAppVersion } from "./lib/wa-version.js";
 
 const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
 const PAIRING_NUMBER = process.env.PAIRING_NUMBER?.replace(/\D/g, "");
@@ -36,9 +37,11 @@ async function askForPhoneNumber() {
 async function main() {
   const phoneNumber = await askForPhoneNumber();
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const version = await resolveWhatsAppVersion(console);
   const socket = makeWASocket({
     auth: state,
-    browser: Browsers.ubuntu("Chrome"),
+    version,
+    browser: Browsers.macOS("Chrome"),
     logger,
     printQRInTerminal: false,
     syncFullHistory: false,

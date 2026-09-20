@@ -10,6 +10,7 @@ import qrcode from "qrcode-terminal";
 
 import { createMessageContext, handleMessage, loadPlugins } from "./lib/command-handler.js";
 import { prepareAuthDirectory } from "./lib/session.js";
+import { resolveWhatsAppVersion } from "./lib/wa-version.js";
 
 const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
 const PREFIX = process.env.PREFIX || ".";
@@ -35,10 +36,12 @@ async function startBot() {
     authDirectoryPrepared = true;
   }
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const version = await resolveWhatsAppVersion(logger);
 
   socket = makeWASocket({
     auth: state,
-    browser: Browsers.ubuntu("Chrome"),
+    version,
+    browser: Browsers.macOS("Chrome"),
     logger: pino({ level: process.env.BAILEYS_LOG_LEVEL || "silent" }),
     printQRInTerminal: false,
     markOnlineOnConnect: false,
