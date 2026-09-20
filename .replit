@@ -21,3 +21,9 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+BOT_NAME = "Rakib AI"
+OWNER_NUMBER = "8801785779952"

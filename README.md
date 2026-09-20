@@ -13,7 +13,8 @@ admin.
    - Leave it blank to use the QR code.
 3. Copy the printed Base64 value into `SESSION_ID`.
 4. Set `OWNER_NUMBER` to the owner's phone number or full WhatsApp JID.
-5. Start the bot with `pnpm bot:start`.
+5. Set `BOT_NAME` to the name shown in the command menu.
+6. Start the bot with `pnpm bot:start`.
 
 The generated authentication files and downloaded media are ignored by Git.
 Never commit `SESSION_ID`, the auth directory, or a `.env` file.

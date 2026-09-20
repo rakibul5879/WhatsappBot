@@ -13,6 +13,7 @@ import { prepareAuthDirectory } from "./lib/session.js";
 
 const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
 const PREFIX = process.env.PREFIX || ".";
+const BOT_NAME = process.env.BOT_NAME || "Rakib AI";
 const RECONNECT_DELAY_MS = Number(process.env.RECONNECT_DELAY_MS || 3_000);
 const logger = pino({ level: process.env.LOG_LEVEL || "info" });
 
@@ -92,6 +93,7 @@ async function startBot() {
       try {
         const context = await createMessageContext(socket, message, {
           prefix: PREFIX,
+          botName: BOT_NAME,
           logger,
         });
         if (context) await handleMessage(context, plugins);
@@ -113,7 +115,7 @@ async function shutdown(signal) {
 async function main() {
   plugins = await loadPlugins("./commands");
   logger.info(
-    { prefix: PREFIX, pluginNames: plugins.map((plugin) => plugin.name) },
+    { botName: BOT_NAME, prefix: PREFIX, pluginNames: plugins.map((plugin) => plugin.name) },
     "Loaded command plugins",
   );
   await startBot();

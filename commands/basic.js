@@ -5,7 +5,7 @@ export default {
   async execute(context) {
     await context.reply(
       [
-        "WhatsApp bot commands",
+        `${context.botName} commands`,
         "",
         `${context.prefix}menu - show this menu`,
         `${context.prefix}ping - check if the bot is online`,
