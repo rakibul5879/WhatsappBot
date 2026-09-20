@@ -18,6 +18,8 @@ const PAIRING_NUMBER = process.env.PAIRING_NUMBER?.replace(/\D/g, "");
 const logger = pino({ level: process.env.BAILEYS_LOG_LEVEL || "silent" });
 
 let pairingRequested = false;
+let pairingTimer;
+let connectionClosed = false;
 
 async function askForPhoneNumber() {
   if (PAIRING_NUMBER) return PAIRING_NUMBER;
@@ -52,19 +54,28 @@ async function main() {
     }
 
     if (
-      connection === "connecting" &&
+      (connection === "connecting" || qr) &&
       phoneNumber &&
       !state.creds.registered &&
       !pairingRequested
     ) {
       pairingRequested = true;
-      try {
-        const code = await socket.requestPairingCode(phoneNumber);
-        console.log(`\nPairing code: ${code}`);
-        console.log("Open WhatsApp > Linked devices > Link a device > Link with phone number.");
-      } catch (error) {
-        logger.error({ error }, "Unable to request pairing code");
-      }
+      pairingTimer = setTimeout(async () => {
+        if (connectionClosed) return;
+        try {
+          const code = await socket.requestPairingCode(phoneNumber);
+          console.log(`\nPairing code: ${code}`);
+          console.log(
+            "Open WhatsApp > Linked devices > Link a device > Link with phone number.",
+          );
+        } catch (error) {
+          console.error(
+            "Unable to request pairing code:",
+            error?.message || error,
+          );
+          process.exitCode = 1;
+        }
+      }, 3_000);
     }
 
     if (connection === "open") {
@@ -77,13 +88,23 @@ async function main() {
     }
 
     if (connection === "close") {
+      connectionClosed = true;
+      if (pairingTimer) clearTimeout(pairingTimer);
       const statusCode =
         lastDisconnect?.error?.output?.statusCode ??
         lastDisconnect?.error?.data?.statusCode;
+      const reason =
+        lastDisconnect?.error?.output?.payload?.message ||
+        lastDisconnect?.error?.message ||
+        "unknown";
       if (statusCode === DisconnectReason.loggedOut) {
-        console.error("WhatsApp rejected the session. Delete AUTH_DIR and try again.");
+        console.error(
+          `WhatsApp rejected the session (status ${statusCode}, ${reason}). Delete AUTH_DIR and try again.`,
+        );
       } else {
-        console.error("Session connection closed before authentication completed.");
+        console.error(
+          `Session connection closed before authentication completed (status ${statusCode ?? "unknown"}, ${reason}).`,
+        );
       }
       process.exitCode = 1;
     }
