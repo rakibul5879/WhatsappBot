@@ -1,0 +1,96 @@
+import "dotenv/config";
+
+import {
+  Browsers,
+  DisconnectReason,
+  useMultiFileAuthState,
+} from "@whiskeysockets/baileys";
+import makeWASocket from "@whiskeysockets/baileys";
+import pino from "pino";
+import qrcode from "qrcode-terminal";
+import { createInterface } from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
+
+import { exportSessionBundle } from "./lib/session.js";
+
+const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
+const PAIRING_NUMBER = process.env.PAIRING_NUMBER?.replace(/\D/g, "");
+const logger = pino({ level: process.env.BAILEYS_LOG_LEVEL || "silent" });
+
+let pairingRequested = false;
+
+async function askForPhoneNumber() {
+  if (PAIRING_NUMBER) return PAIRING_NUMBER;
+  if (!process.stdin.isTTY) return undefined;
+
+  const prompt = createInterface({ input, output });
+  const value = await prompt.question(
+    "Phone number with country code for pairing (leave blank to use QR): ",
+  );
+  prompt.close();
+  return value.replace(/\D/g, "") || undefined;
+}
+
+async function main() {
+  const phoneNumber = await askForPhoneNumber();
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const socket = makeWASocket({
+    auth: state,
+    browser: Browsers.ubuntu("Chrome"),
+    logger,
+    printQRInTerminal: false,
+    syncFullHistory: false,
+    markOnlineOnConnect: false,
+  });
+
+  socket.ev.on("creds.update", saveCreds);
+
+  socket.ev.on("connection.update", async ({ connection, lastDisconnect, qr }) => {
+    if (qr && !phoneNumber) {
+      console.log("\nScan this QR code in WhatsApp > Linked devices:\n");
+      qrcode.generate(qr, { small: true });
+    }
+
+    if (
+      connection === "connecting" &&
+      phoneNumber &&
+      !state.creds.registered &&
+      !pairingRequested
+    ) {
+      pairingRequested = true;
+      try {
+        const code = await socket.requestPairingCode(phoneNumber);
+        console.log(`\nPairing code: ${code}`);
+        console.log("Open WhatsApp > Linked devices > Link a device > Link with phone number.");
+      } catch (error) {
+        logger.error({ error }, "Unable to request pairing code");
+      }
+    }
+
+    if (connection === "open") {
+      const sessionId = await exportSessionBundle(AUTH_DIR);
+      console.log("\nAuthentication complete.");
+      console.log("Copy the following value into SESSION_ID in your environment:");
+      console.log(sessionId);
+      console.log("\nYou can now stop this process and run `pnpm bot:start`.");
+      process.exit(0);
+    }
+
+    if (connection === "close") {
+      const statusCode =
+        lastDisconnect?.error?.output?.statusCode ??
+        lastDisconnect?.error?.data?.statusCode;
+      if (statusCode === DisconnectReason.loggedOut) {
+        console.error("WhatsApp rejected the session. Delete AUTH_DIR and try again.");
+      } else {
+        console.error("Session connection closed before authentication completed.");
+      }
+      process.exitCode = 1;
+    }
+  });
+}
+
+void main().catch((error) => {
+  console.error("Session setup failed:", error);
+  process.exitCode = 1;
+});

@@ -1,0 +1,1 @@
+- [WhatsApp session portability](baileys-session-portability.md) — keep the complete Baileys multi-file auth state in the generated Base64 bundle, not only `creds.json`.

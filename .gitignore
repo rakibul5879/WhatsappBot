@@ -47,3 +47,8 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# WhatsApp authentication and downloaded user media
+auth_info_baileys/
+downloads/
+.env

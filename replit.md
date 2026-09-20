@@ -1,6 +1,6 @@
-# [Project name]
+# Baileys WhatsApp User Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A lightweight multi-device WhatsApp user bot with owner-restricted group moderation, basic commands, local media downloads, and dynamically loaded command plugins.
 
 ## Run & Operate
 
@@ -10,6 +10,8 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm bot:session` — authenticate with a QR code or pairing code and print a Base64 `SESSION_ID`
+- `pnpm bot:start` — start the WhatsApp bot
 
 ## Stack
 
@@ -22,23 +24,31 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `index.js` — main Baileys connection, reconnect handling, and message dispatch
+- `session.js` — QR/pairing-code authentication and session bundle export
+- `lib/command-handler.js` — dynamic plugin loader and command context
+- `lib/session.js` — `SESSION_ID` decoding and local auth bundle management
+- `commands/` — one modular command plugin per file
+- `.env.example` — environment configuration reference
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- `SESSION_ID` supports a Base64 bundle of Baileys auth JSON files so the full multi-device key state can be moved through an environment variable.
+- A locally persisted auth directory is used at runtime so reconnects do not require re-pairing on every process restart.
+- Moderation commands require the sender to be the configured owner or a group admin, and the bot itself must be a group admin.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The bot responds to `.menu`, `.ping`, and `.download` without elevated permissions. In groups, authorized users can use `.kick`, `.add`, `.mute`, and `.unmute`. New commands can be added by dropping a plugin file into `commands/`.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Keep credentials in environment variables or local ignored auth files; never commit a session string.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Run `pnpm bot:session` first and copy its output into `SESSION_ID`.
+- If WhatsApp logs the bot out, delete `AUTH_DIR`, create a fresh session, and update `SESSION_ID`.
 
 ## Pointers
 
