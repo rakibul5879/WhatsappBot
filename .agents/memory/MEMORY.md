@@ -1,2 +1,3 @@
 - [WhatsApp session portability](baileys-session-portability.md) — keep the complete Baileys multi-file auth state in the generated Base64 bundle, not only `creds.json`.
 - [Baileys client version](baileys-client-version.md) — resolve the live WhatsApp Web revision before connecting to avoid 405 client-too-old disconnects.
+- [Bot feature merging](bot-feature-merging.md) — merge behavior and architecture from GPL bot references without copying their source into this project.

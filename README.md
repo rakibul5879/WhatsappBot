@@ -33,6 +33,11 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 - `.alive` / `.runtime` — show status and uptime
 - `.download` / `.dl` — reply to supported media with this command to save it
   in `downloads/`
+- `.calc 12 * (4 + 3)` — safe arithmetic
+- `.say text` / `.echo text`
+- `.reverse text`
+- `.fun [question]`
+- `.quote`
 
 ### Owner or group admins
 
@@ -43,6 +48,10 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 - `.promote @user`
 - `.demote @user`
 - `.tagall [message]`
+- `.admins`
+- `.link`
+- `.setname New name`
+- `.setdesc New description`
 
 ### Group information
 
