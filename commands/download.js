@@ -1,6 +1,7 @@
 export default {
   name: "download",
   aliases: ["dl"],
+  category: "media",
   description: "Download media from this message or a quoted message.",
   async execute(context) {
     const targetMessage = context.quotedMessage

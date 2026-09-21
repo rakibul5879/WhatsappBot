@@ -28,7 +28,9 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 ### Available to everyone
 
 - `.menu` / `.help`
+- `.menu general`, `.menu group`, `.menu media`, `.menu owner`
 - `.ping`
+- `.alive` / `.runtime` — show status and uptime
 - `.download` / `.dl` — reply to supported media with this command to save it
   in `downloads/`
 
@@ -38,6 +40,16 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 - `.add 8801XXXXXXXXX`
 - `.mute`
 - `.unmute`
+- `.promote @user`
+- `.demote @user`
+- `.tagall [message]`
+
+### Group information
+
+- `.groupinfo` / `.ginfo`
+
+The menu is generated from plugin metadata, so new command files automatically
+appear in the right category.
 
 The bot account must also be a group admin for moderation commands.
 

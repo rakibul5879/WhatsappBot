@@ -1,5 +1,6 @@
 export default {
   name: "unmute",
+  category: "group",
   description: "Allow all participants to send group messages.",
   groupOnly: true,
   adminOnly: true,

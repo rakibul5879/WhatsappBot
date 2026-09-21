@@ -1,6 +1,7 @@
 export default {
   name: "kick",
   aliases: ["remove"],
+  category: "group",
   description: "Remove a mentioned or replied-to participant.",
   groupOnly: true,
   adminOnly: true,

@@ -1,5 +1,6 @@
 export default {
   name: "mute",
+  category: "group",
   description: "Allow only admins to send group messages.",
   groupOnly: true,
   adminOnly: true,

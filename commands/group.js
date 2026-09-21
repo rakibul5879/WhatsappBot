@@ -1,5 +1,6 @@
 export default {
   name: "add",
+  category: "group",
   description: "Add a participant by phone number.",
   groupOnly: true,
   adminOnly: true,
