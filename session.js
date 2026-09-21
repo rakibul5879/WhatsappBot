@@ -8,6 +8,7 @@ import {
 import makeWASocket from "@whiskeysockets/baileys";
 import pino from "pino";
 import qrcode from "qrcode-terminal";
+import { writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
@@ -84,9 +85,14 @@ async function startSession(phoneNumber, state, saveCreds) {
     if (connection === "open") {
       restartAttempts = 0;
       const sessionId = await exportSessionBundle(AUTH_DIR);
+      await writeFile(
+        "SESSION_ID.md",
+        `# Rakib AI SESSION_ID\n\nCopy only the value inside this box into the Replit Secret named \`SESSION_ID\`.\n\n\`\`\`text\n${sessionId}\n\`\`\`\n`,
+        { encoding: "utf8", mode: 0o600 },
+      );
       console.log("\nAuthentication complete.");
-      console.log("Copy the following value into SESSION_ID in your environment:");
-      console.log(sessionId);
+      console.log("SESSION_ID.md was created with a copy-friendly Markdown box.");
+      console.log("Copy its value into the Replit Secret named SESSION_ID.");
       console.log("\nYou can now stop this process and run `pnpm bot:start`.");
       process.exit(0);
     }

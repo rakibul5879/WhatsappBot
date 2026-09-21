@@ -16,6 +16,10 @@ admin.
 5. Set `BOT_NAME` to the name shown in the command menu.
 6. Start the bot with `pnpm bot:start`.
 
+The session generator also creates an ignored `SESSION_ID.md` file with the
+value inside a Markdown code box. Copy it into the Replit Secret named
+`SESSION_ID`, and never commit or share that file.
+
 The generated authentication files and downloaded media are ignored by Git.
 Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 
