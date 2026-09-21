@@ -2,3 +2,4 @@
 - [Baileys client version](baileys-client-version.md) — resolve the live WhatsApp Web revision before connecting to avoid 405 client-too-old disconnects.
 - [Bot feature merging](bot-feature-merging.md) — merge behavior and architecture from GPL bot references without copying their source into this project.
 - [Group language moderation](group-language-moderation.md) — keep Bengali/BD slur filtering configurable, admin-exempt, and explicit about delete versus warn behavior.
+- [Workspace package installs](workspace-package-installs.md) — root-level pnpm dependency installs need explicit workspace handling in this monorepo.

@@ -7,6 +7,7 @@ export default {
     const categoryNames = {
       general: "GENERAL",
       media: "MEDIA",
+      ai: "AI",
       group: "GROUP",
       owner: "OWNER",
     };

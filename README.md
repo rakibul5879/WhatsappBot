@@ -33,6 +33,11 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 - `.alive` / `.runtime` — show status and uptime
 - `.download` / `.dl` — reply to supported media with this command to save it
   in `downloads/`
+- `.play <url>`, `.yt <url>`, `.video <url>`, `.tiktok <url>`,
+  `.instagram <url>`, `.facebook <url>` — download provider-backed media
+- `.ai <question>` / `.ask <question>` — ask the configured AI provider
+- `.summarize <text>`, `.translate <language> | <text>`, `.rewrite <text>`,
+  `.explain <text>` — AI writing tools
 - `.calc 12 * (4 + 3)` — safe arithmetic
 - `.say text` / `.echo text`
 - `.reverse text`
@@ -64,6 +69,12 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 
 The menu is generated from plugin metadata, so new command files automatically
 appear in the right category.
+
+
+## Provider configuration
+
+Media and AI commands use explicit provider contracts. They do not scrape
+websites or silently fall back to an unknown service.
 
 ## Group language moderation
 
@@ -103,3 +114,42 @@ Optional plugin flags are `groupOnly`, `adminOnly`, and
 `requiresBotAdmin`. The context includes `socket`, `message`, `args`,
 `chatId`, `sender`, `isGroup`, `isOwner`, `canModerate`, `reply()`, and
 `downloadMedia()`.
+
+### Media provider
+
+Set `MEDIA_PROVIDER_URL` to an HTTPS endpoint that accepts:
+
+```json
+{ "url": "https://source.example/item", "type": "auto" }
+```
+
+The endpoint may require `MEDIA_PROVIDER_API_KEY` and must return JSON in one
+of these forms:
+
+```json
+{ "url": "https://cdn.example/file.mp4", "mimeType": "video/mp4", "filename": "file.mp4" }
+```
+
+or:
+
+```json
+{ "base64": "...", "mimeType": "audio/mpeg", "filename": "file.mp3" }
+```
+
+The bot downloads the returned file, enforces `MEDIA_MAX_BYTES`, and sends it
+back to the WhatsApp chat. Provider errors, unsupported URLs, timeouts, and
+oversized files are returned as clear command errors.
+
+
+### AI provider
+
+The preferred setup is Replit's managed OpenAI integration, which supplies
+`AI_INTEGRATIONS_OPENAI_BASE_URL` and `AI_INTEGRATIONS_OPENAI_API_KEY`.
+Those values are used by `.ai` and the AI writing tools without putting a
+provider key in source control.
+
+You can select another OpenAI-compatible provider by setting `AI_BASE_URL`,
+`AI_API_KEY`, and optionally `AI_MODEL`. `AI_BASE_URL` should be the provider's
+API root; the bot sends requests to `/chat/completions`. AI timeouts, provider
+HTTP errors, missing configuration, empty responses, and overlong prompts are
+reported explicitly.
