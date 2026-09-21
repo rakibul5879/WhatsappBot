@@ -21,6 +21,7 @@ const logger = pino({ level: process.env.BAILEYS_LOG_LEVEL || "silent" });
 let pairingRequested = false;
 let pairingTimer;
 let connectionClosed = false;
+let restartAttempts = 0;
 
 async function askForPhoneNumber() {
   if (PAIRING_NUMBER) return PAIRING_NUMBER;
@@ -34,9 +35,8 @@ async function askForPhoneNumber() {
   return value.replace(/\D/g, "") || undefined;
 }
 
-async function main() {
-  const phoneNumber = await askForPhoneNumber();
-  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+async function startSession(phoneNumber, state, saveCreds) {
+  connectionClosed = false;
   const version = await resolveWhatsAppVersion(console);
   const socket = makeWASocket({
     auth: state,
@@ -82,6 +82,7 @@ async function main() {
     }
 
     if (connection === "open") {
+      restartAttempts = 0;
       const sessionId = await exportSessionBundle(AUTH_DIR);
       console.log("\nAuthentication complete.");
       console.log("Copy the following value into SESSION_ID in your environment:");
@@ -100,6 +101,27 @@ async function main() {
         lastDisconnect?.error?.output?.payload?.message ||
         lastDisconnect?.error?.message ||
         "unknown";
+
+      if (statusCode === DisconnectReason.restartRequired) {
+        restartAttempts += 1;
+        if (restartAttempts > 5) {
+          console.error("WhatsApp requested too many authentication restarts.");
+          process.exitCode = 1;
+          return;
+        }
+
+        console.log(
+          `WhatsApp accepted the pairing and requested a restart (515). Reconnecting (${restartAttempts}/5)...`,
+        );
+        setTimeout(() => {
+          void startSession(phoneNumber, state, saveCreds).catch((error) => {
+            console.error("Authentication restart failed:", error);
+            process.exitCode = 1;
+          });
+        }, 1_000);
+        return;
+      }
+
       if (statusCode === DisconnectReason.loggedOut) {
         console.error(
           `WhatsApp rejected the session (status ${statusCode}, ${reason}). Delete AUTH_DIR and try again.`,
@@ -112,6 +134,12 @@ async function main() {
       process.exitCode = 1;
     }
   });
+}
+
+async function main() {
+  const phoneNumber = await askForPhoneNumber();
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  await startSession(phoneNumber, state, saveCreds);
 }
 
 void main().catch((error) => {

@@ -7,4 +7,4 @@ Resolve the live WhatsApp Web client revision before creating a Baileys socket, 
 
 **Why:** WhatsApp can reject an otherwise valid pairing request with HTTP 405 when the advertised client revision or browser profile is stale.
 
-**How to apply:** Keep version resolution in both the normal bot startup and the session-generation flow. After a 405, clear the incomplete local auth directory and generate a fresh session.
+**How to apply:** Keep version resolution in both the normal bot startup and the session-generation flow. After a 405, clear the incomplete local auth directory and generate a fresh session. Treat disconnect status 515 as the normal post-pairing restart and reconnect before declaring failure.
