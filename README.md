@@ -38,6 +38,11 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 - `.reverse text`
 - `.fun [question]`
 - `.quote`
+- `.games` / `.game`
+- `.games dice`
+- `.games coin`
+- `.games rps rock`
+- `.games guess`
 
 ### Owner or group admins
 
@@ -59,6 +64,23 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 
 The menu is generated from plugin metadata, so new command files automatically
 appear in the right category.
+
+## Group language moderation
+
+Rakib AI includes a built-in Bangla/BD slur filter for group messages. By
+default it deletes the message when the bot is an admin and sends a respectful
+warning. Group admins and the configured owner are exempt.
+
+Configure it with:
+
+```env
+SLUR_BLOCKING=true
+SLUR_ACTION=delete_warn
+BLOCKED_WORDS=
+```
+
+`SLUR_ACTION` can be `warn`, `delete`, or `delete_warn`. Add extra
+comma-separated terms with `BLOCKED_WORDS` without changing source code.
 
 The bot account must also be a group admin for moderation commands.
 

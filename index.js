@@ -8,7 +8,12 @@ import makeWASocket, {
 import pino from "pino";
 import qrcode from "qrcode-terminal";
 
-import { createMessageContext, handleMessage, loadPlugins } from "./lib/command-handler.js";
+import {
+  createMessageContext,
+  handleMessage,
+  loadPlugins,
+  moderateIncomingMessage,
+} from "./lib/command-handler.js";
 import { prepareAuthDirectory } from "./lib/session.js";
 import { resolveWhatsAppVersion } from "./lib/wa-version.js";
 
@@ -94,6 +99,12 @@ async function startBot() {
       if (!message.message || message.key.fromMe) continue;
 
       try {
+        const wasModerated = await moderateIncomingMessage(socket, message, {
+          prefix: PREFIX,
+          logger,
+        });
+        if (wasModerated) continue;
+
         const context = await createMessageContext(socket, message, {
           prefix: PREFIX,
           botName: BOT_NAME,
