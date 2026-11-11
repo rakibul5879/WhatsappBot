@@ -18,8 +18,18 @@ export default {
 
     await context.reply("Thinking...");
     try {
-      const answer = await generateText({ prompt, system: SYSTEM_PROMPT });
-      await context.reply(answer);
+      const { answer, usedModel } = await generateText({ prompt, system: SYSTEM_PROMPT });
+
+      const date = new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+      const creator = "Rakib";
+
+      const formattedResponse = `${answer}\n\n[Model: ${usedModel}]\n[Creator: ${creator}]\n[Date: ${date}]`;
+
+      await context.reply(formattedResponse);
     } catch (error) {
       context.logger.warn({ error, command: context.command }, "AI request failed");
       const message = error instanceof AiProviderError ? error.message : "The AI request failed.";

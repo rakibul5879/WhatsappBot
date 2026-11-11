@@ -21,9 +21,11 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+packages = ["nano"]
 
 [userenv]
 
 [userenv.shared]
 BOT_NAME = "Rakib AI"
-OWNER_NUMBER = "8801986304330"
+OWNER_NUMBER = "8801877622094"
+AI_BASE_URL = "https://openrouter.ai/api/v1"

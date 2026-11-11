@@ -36,6 +36,7 @@ export default {
             : context.command;
     const tool = TOOLS[toolName] || TOOLS.summarize;
     const input = context.args.join(" ").trim();
+
     if (!input) {
       await context.reply(`Usage: ${context.prefix}${context.command} ${tool.usage}`);
       return;
@@ -43,11 +44,21 @@ export default {
 
     await context.reply("Working on it...");
     try {
-      const answer = await generateText({
+      const { answer, usedModel } = await generateText({
         prompt: `${tool.instruction}\n\nInput:\n${input}`,
         system: "You are a concise writing assistant for WhatsApp.",
       });
-      await context.reply(answer);
+
+      const date = new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+      const creator = "Rakib";
+
+      const formattedResponse = `${answer}\n\n[Model: ${usedModel}]\n[Creator: ${creator}]\n[Date: ${date}]`;
+
+      await context.reply(formattedResponse);
     } catch (error) {
       context.logger.warn({ error, command: context.command }, "AI tool request failed");
       const message = error instanceof AiProviderError ? error.message : "The AI tool failed.";

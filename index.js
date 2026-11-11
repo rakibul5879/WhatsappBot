@@ -18,7 +18,7 @@ import { prepareAuthDirectory } from "./lib/session.js";
 import { resolveWhatsAppVersion } from "./lib/wa-version.js";
 
 const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
-const PREFIX = process.env.PREFIX || ".";
+const PREFIX = process.env.PREFIX || "/";
 const BOT_NAME = process.env.BOT_NAME || "Rakib AI";
 const RECONNECT_DELAY_MS = Number(process.env.RECONNECT_DELAY_MS || 3_000);
 const logger = pino({ level: process.env.LOG_LEVEL || "info" });
