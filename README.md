@@ -7,14 +7,16 @@ admin.
 
 ## Setup
 
-1. Copy `.env.example` to `.env`.
-2. Run `pnpm bot:session`.
+1. Clone this repository.
+2. Copy `.env.example` to `.env`.
+3. Run `npm install` and `npm install dotnet` .
+4. Run `pnpm bot:session`or `node session.js`.
    - Enter a phone number with country code to use a pairing code.
    - Leave it blank to use the QR code.
-3. Copy the printed Base64 value into `SESSION_ID`.
-4. Set `OWNER_NUMBER` to the owner's phone number or full WhatsApp JID.
-5. Set `BOT_NAME` to the name shown in the command menu.
-6. Start the bot with `pnpm bot:start`.
+5. Copy the printed Base64 value into `SESSION_ID` from the generated `SESSION_ID.md` file.
+6. Set `OWNER_NUMBER` to the owner's phone number or full WhatsApp JID.
+7. Set `BOT_NAME` to the name shown in the command menu.
+8. Start the bot with `pnpm bot:start`.
 
 The session generator also creates an ignored `SESSION_ID.md` file with the
 value inside a Markdown code box. Copy it into the Replit Secret named
@@ -66,9 +68,14 @@ Never commit `SESSION_ID`, the auth directory, or a `.env` file.
 ### Group information
 
 - `.groupinfo` / `.ginfo`
+- `groupid` - outputs the whatsapp group id (it always ends with `@g.us` .) .
 
 The menu is generated from plugin metadata, so new command files automatically
 appear in the right category.
+
+### Minecraft server
+- `mc <server command>` - executes a command on the minecraft server side.
+Includes built-in massage bridge and logging (see `PATCH-MANIFEST.md` for full info of server intrigration) 
 
 
 ## Provider configuration
@@ -78,7 +85,7 @@ websites or silently fall back to an unknown service.
 
 ## Group language moderation
 
-Rakib AI includes a built-in Bangla/BD slur filter for group messages. By
+WhatsappBot includes a built-in Bangla/BD slur filter for group messages. By
 default it deletes the message when the bot is an admin and sends a respectful
 warning. Group admins and the configured owner are exempt.
 
@@ -152,4 +159,12 @@ You can select another OpenAI-compatible provider by setting `AI_BASE_URL`,
 `AI_API_KEY`, and optionally `AI_MODEL`. `AI_BASE_URL` should be the provider's
 API root; the bot sends requests to `/chat/completions`. AI timeouts, provider
 HTTP errors, missing configuration, empty responses, and overlong prompts are
-reported explicitly.
+reported explicitly. You can use openrouter here.
+
+
+
+## License
+
+This bot is licensed under MIT, see the whole LICENSE.md file for more info.
+
+**End of the line buddy**
