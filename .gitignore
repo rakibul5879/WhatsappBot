@@ -49,7 +49,7 @@ Thumbs.db
 .local/
 
 # WhatsApp authentication and downloaded user media
-auth_info_baileys/
+sessions/
 downloads/
 .env
 SESSION_ID.md
