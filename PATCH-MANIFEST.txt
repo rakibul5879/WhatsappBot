@@ -1,0 +1,54 @@
+WHATSAPPBOT + MINECRAFT BRIDGE — CHANGES-ONLY PATCH
+
+BASE PROJECT
+- WhatsappBot-main.zip (the original first bot ZIP)
+- This patch is built directly against that archive, not whatsapp.rar and not a later patched project.
+- Extract this ZIP into the root of the freshly restored WhatsappBot-main project.
+- It contains only files added or changed relative to the original ZIP.
+
+ADDED
+  + minecraft/bridge.js
+  + minecraft/log-reader.js
+  + minecraft/rcon.js
+  + commands/minecraft.js
+
+MODIFIED
+  * index.js
+  * .env.example
+
+FEATURES
+- One Node.js process and one existing Baileys WhatsApp connection; no Python process or second WhatsApp session.
+- DiscordSRV-style relay: ordinary text messages in MC_WHATSAPP_GROUP_ID are sent to Minecraft automatically.
+- Messages beginning with the configured bot prefix (default /) are treated as bot commands and are not relayed as chat.
+- WhatsApp -> Minecraft uses colored tellraw JSON, not /say or /echo; no [Rcon] prefix is added.
+- Minecraft -> WhatsApp tails Spigot logs and relays chat, join, leave, server-start, and server-stop events.
+- Player chat parser supports EssentialsX-style lines such as <EssentialX nick>: <message>, plus vanilla <player> message lines.
+- Minecraft -> WhatsApp format: [hh:mm:ss AM/PM]: <EssentialX nick>: <message>
+- /mc <command> runs RCON and posts the command plus returned output to the configured WhatsApp group with 12-hour timestamps.
+- /players, /server, and /mchelp are included.
+- /mcchat is not included; ordinary group messages are the chat relay.
+- All members of the configured group can use /mc. There are no per-sender admin checks.
+
+CONFIGURATION
+Set these in your existing .env (do not replace your .env with .env.example):
+  PREFIX=/
+  AUTH_DIR=./sessions
+  MC_ENABLED=true
+  MC_WHATSAPP_GROUP_ID=<your group JID ending in @g.us>
+  MC_RCON_HOST=127.0.0.1
+  MC_RCON_PORT=25575
+  MC_RCON_PASSWORD=<same password as server.properties>
+  MC_LOG_FILE=C:/Users/ADMINISTRATOR_/OneDrive/Desktop/Server1/logs/latest.log
+  MC_LOG_POLL_MS=1000
+
+INSTALL
+1. Stop the bot and Minecraft server.
+2. Extract this ZIP into the root of the restored WhatsappBot-main directory.
+3. Allow the listed files to overwrite; only index.js and .env.example are replacements.
+4. Keep your .env and sessions/ intact. The .env.example file is a template only.
+5. Run the existing bot using your normal start command.
+
+NOTES
+- The log reader starts at the current end of latest.log and relays only new lines. It handles log truncation/rotation by resetting its offset.
+- If EssentialsXChat uses a different console log prefix, the parser strips standard timestamp/INFO prefixes before matching the chat payload.
+- RCON returns command response text. Asynchronous console lines emitted later by plugins are not guaranteed to be captured by /mc; they are separate latest.log events only when the parser recognizes them.

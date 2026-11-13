@@ -16,6 +16,11 @@ import {
 } from "./lib/command-handler.js";
 import { prepareAuthDirectory } from "./lib/session.js";
 import { resolveWhatsAppVersion } from "./lib/wa-version.js";
+import {
+  startMinecraftBridge,
+  stopMinecraftBridge,
+  relayWhatsAppMessageToMinecraft,
+} from "./minecraft/bridge.js";
 
 const AUTH_DIR = process.env.AUTH_DIR || "./auth_info_baileys";
 const PREFIX = process.env.PREFIX || "/";
@@ -64,6 +69,9 @@ async function startBot() {
 
     if (connection === "open") {
       logger.info({ pluginCount: plugins.length }, "WhatsApp bot connected");
+      void startMinecraftBridge(socket, logger).catch((error) => {
+        logger.error({ error }, "Unable to start Minecraft bridge");
+      });
     }
 
     if (connection === "close") {
@@ -105,6 +113,14 @@ async function startBot() {
         });
         if (wasModerated) continue;
 
+        // DiscordSRV-style relay: only ordinary messages in the configured group
+        // are sent to Minecraft. Messages beginning with PREFIX remain bot commands.
+        try {
+          await relayWhatsAppMessageToMinecraft(message, PREFIX);
+        } catch (error) {
+          logger.warn({ error, messageId: message.key.id }, "WhatsApp-to-Minecraft relay failed");
+        }
+
         const context = await createMessageContext(socket, message, {
           prefix: PREFIX,
           botName: BOT_NAME,
@@ -123,6 +139,7 @@ async function shutdown(signal) {
   stopping = true;
   if (reconnectTimer) clearTimeout(reconnectTimer);
   logger.info({ signal }, "Stopping WhatsApp bot");
+  stopMinecraftBridge();
   socket?.end?.(new Error(`Process received ${signal}`));
 }
 
